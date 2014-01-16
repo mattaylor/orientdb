@@ -42,10 +42,10 @@ import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 public class JSONTest {
   private String url;
 
-//  public static final void  main(String[] args) throws Exception {
-//    JSONTest test = new JSONTest("memory:test");
-//    test.testList();
-//  }
+  // public static final void main(String[] args) throws Exception {
+  // JSONTest test = new JSONTest("memory:test");
+  // test.testList();
+  // }
 
   @Parameters(value = "url")
   public JSONTest(final String iURL) {
@@ -555,8 +555,7 @@ public class JSONTest {
 
       database.command(new OCommandSQL("insert into device (resource_id, domainset) VALUES (1, { 'domain' : 'eee' })")).execute();
 
-      List<ODocument> result = database
-          .query(new OSQLSynchQuery<Object>("select from device where domainset.domain in 'eee'"));
+      List<ODocument> result = database.query(new OSQLSynchQuery<Object>("select from device where domainset.domain in 'eee'"));
       Assert.assertTrue(result.size() > 0);
 
     } finally {

@@ -116,23 +116,23 @@ public class OMemoryWatchDog extends Thread {
   @Override
   public void run() {
     Orient
-    .instance()
-    .getProfiler()
-    .registerHookValue("system.memory.alerts", "Number of alerts received by JVM to free memory resources",
-        METRIC_TYPE.COUNTER, new OProfilerHookValue() {
-      public Object getValue() {
-        return alertTimes;
-      }
-    });
+        .instance()
+        .getProfiler()
+        .registerHookValue("system.memory.alerts", "Number of alerts received by JVM to free memory resources",
+            METRIC_TYPE.COUNTER, new OProfilerHookValue() {
+              public Object getValue() {
+                return alertTimes;
+              }
+            });
     Orient
-    .instance()
-    .getProfiler()
-    .registerHookValue("system.memory.lastGC", "Date of last System.gc() invocation", METRIC_TYPE.STAT,
-        new OProfilerHookValue() {
-      public Object getValue() {
-        return lastGC;
-      }
-    });
+        .instance()
+        .getProfiler()
+        .registerHookValue("system.memory.lastGC", "Date of last System.gc() invocation", METRIC_TYPE.STAT,
+            new OProfilerHookValue() {
+              public Object getValue() {
+                return lastGC;
+              }
+            });
 
     autoFreeCheckEveryMs = OGlobalConfiguration.MEMORY_AUTOFREE_CHECK_EVERY.getValueAsLong();
     Orient.instance().getTimer().schedule(new TimerTask() {

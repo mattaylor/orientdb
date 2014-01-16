@@ -1171,7 +1171,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       if (value instanceof ORecordLazyMultiValue) {
         ORecordLazyMultiValue multiValue = (ORecordLazyMultiValue) value;
         multiValue.setAutoConvertToRecord(oldAutoConvertValue);
-    }
+      }
 
       return newValue;
     }
@@ -1186,7 +1186,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       return true;
     }
 
- @Override
+    @Override
     public boolean updateMode() {
       return true;
     }
@@ -1223,7 +1223,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
     interface ResultCallback {
       void add(Object item);
     }
- }
+  }
 
   private static final class SetConverter extends AbstractCollectionConverter<Set> {
     public static final SetConverter INSTANCE = new SetConverter();

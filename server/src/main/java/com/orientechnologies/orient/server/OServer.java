@@ -685,7 +685,7 @@ public class OServer {
           final File localFile = new File(db.getAbsolutePath() + "/default.odh");
           final File plocalFile = new File(db.getAbsolutePath() + "/default.pcl");
           final String dbPath = db.getPath().replace('\\', '/');
-          final int lastBS =  dbPath.lastIndexOf('/',dbPath.length()-1)+1;// -1 of dbPath may be ended with slash
+          final int lastBS = dbPath.lastIndexOf('/', dbPath.length() - 1) + 1;// -1 of dbPath may be ended with slash
           if (localFile.exists()) {
             // FOUND DB FOLDER
             storages.put(OIOUtils.getDatabaseNameFromPath(dbPath.substring(lastBS)), "local:" + dbPath);

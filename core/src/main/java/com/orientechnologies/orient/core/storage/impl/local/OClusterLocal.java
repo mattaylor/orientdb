@@ -295,7 +295,7 @@ public class OClusterLocal extends OSharedResourceAdaptive implements OCluster {
         break;
       case DATASEGMENT:
         setDataSegmentInternal(stringValue);
-        break;        
+        break;
       default:
         throw new IllegalArgumentException("Runtime change of attribute '" + iAttribute + " is not supported");
       }
