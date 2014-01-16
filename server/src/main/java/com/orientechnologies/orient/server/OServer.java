@@ -64,6 +64,7 @@ import com.orientechnologies.orient.server.config.OServerEntryConfiguration;
 import com.orientechnologies.orient.server.config.OServerHandlerConfiguration;
 import com.orientechnologies.orient.server.config.OServerNetworkListenerConfiguration;
 import com.orientechnologies.orient.server.config.OServerNetworkProtocolConfiguration;
+import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import com.orientechnologies.orient.server.config.OServerStorageConfiguration;
 import com.orientechnologies.orient.server.config.OServerUserConfiguration;
 import com.orientechnologies.orient.server.distributed.ODistributedServerManager;
@@ -641,6 +642,24 @@ public class OServer {
       // ACTIVATE PLUGINS
       OServerPlugin handler;
       for (OServerHandlerConfiguration h : configuration.handlers) {
+        if (h.parameters != null) {
+          // CHECK IF IT'S ENABLED
+          boolean enabled = true;
+
+          for (OServerParameterConfiguration p : h.parameters) {
+            if (p.name.equals("enabled")) {
+              if (p.name.equals("false")) {
+                enabled = false;
+                break;
+              }
+            }
+          }
+
+          if (!enabled)
+            // SKIP IT
+            continue;
+        }
+
         handler = (OServerPlugin) Class.forName(h.clazz).newInstance();
 
         if (handler instanceof ODistributedServerManager)
@@ -665,14 +684,13 @@ public class OServer {
         if (db.isDirectory()) {
           final File localFile = new File(db.getAbsolutePath() + "/default.odh");
           final File plocalFile = new File(db.getAbsolutePath() + "/default.pcl");
+          final String dbPath = db.getPath().replace('\\', '/');
+          final int lastBS =  dbPath.lastIndexOf('/',dbPath.length()-1)+1;// -1 of dbPath may be ended with slash
           if (localFile.exists()) {
-            final String dbPath = db.getPath().replace('\\', '/');
             // FOUND DB FOLDER
-            storages.put(OIOUtils.getDatabaseNameFromPath(dbPath.substring(rootDirectory.length())), "local:" + dbPath);
+            storages.put(OIOUtils.getDatabaseNameFromPath(dbPath.substring(lastBS)), "local:" + dbPath);
           } else if (plocalFile.exists()) {
-            final String dbPath = db.getPath().replace('\\', '/');
-
-            storages.put(OIOUtils.getDatabaseNameFromPath(dbPath.substring(rootDirectory.length())), "plocal:" + dbPath);
+            storages.put(OIOUtils.getDatabaseNameFromPath(dbPath.substring(lastBS)), "plocal:" + dbPath);
           } else
             // TRY TO GO IN DEEP RECURSIVELY
             scanDatabaseDirectory(rootDirectory, db, storages);

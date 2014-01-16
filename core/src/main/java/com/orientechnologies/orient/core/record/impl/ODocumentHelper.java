@@ -34,6 +34,7 @@ import java.util.Set;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.annotation.OId;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
@@ -49,6 +50,7 @@ import com.orientechnologies.orient.core.db.record.ORecordTrackedSet;
 import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.OTrackedMap;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
+import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -316,7 +318,9 @@ public class ODocumentHelper {
             String from = indexRanges.get(0);
             String to = indexRanges.get(1);
 
-            final String[] fieldNames = ((ODocument) value).fieldNames();
+            final ODocument doc = ((ODocument) ((OIdentifiable) value).getRecord());
+
+            final String[] fieldNames = doc.fieldNames();
             final int rangeFrom = from != null && !from.isEmpty() ? Integer.parseInt(from) : 0;
             final int rangeTo = to != null && !to.isEmpty() ? Math.min(Integer.parseInt(to), fieldNames.length - 1)
                 : fieldNames.length - 1;
@@ -324,7 +328,7 @@ public class ODocumentHelper {
             final Object[] values = new Object[rangeTo - rangeFrom + 1];
 
             for (int i = rangeFrom; i <= rangeTo; ++i)
-              values[i - rangeFrom] = ((ODocument) value).field(fieldNames[i]);
+              values[i - rangeFrom] = doc.field(fieldNames[i]);
 
             value = values;
 
@@ -361,7 +365,7 @@ public class ODocumentHelper {
             }
             value = values;
           }
-        } else if (value instanceof Collection<?> || value.getClass().isArray()) {
+        } else if (OMultiValue.isMultiValue(value)) {
           // MULTI VALUE
           final Object index = getIndexPart(iContext, indexPart);
           final String indexAsString = index != null ? index.toString() : null;
@@ -903,6 +907,9 @@ public class ODocumentHelper {
         } else if (myFieldValue instanceof Collection && otherFieldValue instanceof Collection) {
           if (!compareCollections(iMyDb, (Collection<?>) myFieldValue, iOtherDb, (Collection<?>) otherFieldValue, ridMapper))
             return false;
+        } else if (myFieldValue instanceof ORidBag && otherFieldValue instanceof ORidBag) {
+          if (!compareBags(iMyDb, (ORidBag) myFieldValue, iOtherDb, (ORidBag) otherFieldValue, ridMapper))
+            return false;
         } else if (myFieldValue instanceof Map && otherFieldValue instanceof Map) {
           if (!compareMaps(iMyDb, (Map<Object, Object>) myFieldValue, iOtherDb, (Map<Object, Object>) otherFieldValue, ridMapper))
             return false;
@@ -1156,6 +1163,99 @@ public class ODocumentHelper {
 
       if (otherSet instanceof ORecordLazyMultiValue)
         ((ORecordLazyMultiValue) otherSet).setAutoConvertToRecord(oldOtherAutoConvert);
+    }
+  }
+
+  public static boolean compareBags(ODatabaseRecord iMyDb, ORidBag myFieldValue, ODatabaseRecord iOtherDb, ORidBag otherFieldValue,
+      RIDMapper ridMapper) {
+    final ORidBag myBag = myFieldValue;
+    final ORidBag otherBag = otherFieldValue;
+
+    final int mySize = makeDbCall(iMyDb, new ODbRelatedCall<Integer>() {
+      public Integer call() {
+        return myBag.size();
+      }
+    });
+
+    final int otherSize = makeDbCall(iOtherDb, new ODbRelatedCall<Integer>() {
+      public Integer call() {
+        return otherBag.size();
+      }
+    });
+
+    if (mySize != otherSize)
+      return false;
+
+    boolean oldMyAutoConvert;
+    boolean oldOtherAutoConvert;
+
+    oldMyAutoConvert = myBag.isAutoConvertToRecord();
+    myBag.setAutoConvertToRecord(false);
+
+    oldOtherAutoConvert = otherBag.isAutoConvertToRecord();
+    otherBag.setAutoConvertToRecord(false);
+
+    final ORidBag otherBagCopy = makeDbCall(iOtherDb, new ODbRelatedCall<ORidBag>() {
+      @Override
+      public ORidBag call() {
+        final ORidBag otherRidBag = new ORidBag();
+        otherRidBag.setAutoConvertToRecord(false);
+
+        for (OIdentifiable identifiable : otherBag)
+          otherRidBag.add(identifiable);
+
+        return otherRidBag;
+      }
+    });
+
+    try {
+      final Iterator<OIdentifiable> myIterator = makeDbCall(iMyDb, new ODbRelatedCall<Iterator<OIdentifiable>>() {
+        public Iterator<OIdentifiable> call() {
+          return myBag.iterator();
+        }
+      });
+
+      while (makeDbCall(iMyDb, new ODbRelatedCall<Boolean>() {
+        public Boolean call() {
+          return myIterator.hasNext();
+        }
+      })) {
+        final OIdentifiable myIdentifiable = makeDbCall(iMyDb, new ODbRelatedCall<OIdentifiable>() {
+          @Override
+          public OIdentifiable call() {
+            return myIterator.next();
+          }
+        });
+
+        final ORID otherRid;
+        if (ridMapper != null) {
+          ORID convertedRid = ridMapper.map(myIdentifiable.getIdentity());
+          if (convertedRid != null)
+            otherRid = convertedRid;
+          else
+            otherRid = myIdentifiable.getIdentity();
+        } else
+          otherRid = myIdentifiable.getIdentity();
+
+        makeDbCall(iOtherDb, new ODbRelatedCall<Object>() {
+          @Override
+          public Object call() {
+            otherBagCopy.remove(otherRid);
+            return null;
+          }
+        });
+
+      }
+
+      return makeDbCall(iOtherDb, new ODbRelatedCall<Boolean>() {
+        @Override
+        public Boolean call() {
+          return otherBagCopy.isEmpty();
+        }
+      });
+    } finally {
+      myBag.setAutoConvertToRecord(oldMyAutoConvert);
+      otherBag.setAutoConvertToRecord(oldOtherAutoConvert);
     }
   }
 

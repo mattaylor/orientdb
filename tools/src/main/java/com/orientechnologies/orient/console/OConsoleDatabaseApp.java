@@ -2003,4 +2003,18 @@ public class OConsoleDatabaseApp extends OrientConsole implements OCommandOutput
     currentDatabase.getMetadata().getSchema().reload();
     currentDatabase.getMetadata().getIndexManager().reload();
   }
+
+  @Override
+  protected String getContext() {
+    if (currentDatabase != null)
+      return " {" + currentDatabaseName + "}";
+    else if (serverAdmin != null)
+      return " {" + serverAdmin.getURL() + "}";
+    return "";
+  }
+
+  @Override
+  protected String getPrompt() {
+    return String.format("orientdb%s> ", getContext());
+  }
 }

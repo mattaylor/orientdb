@@ -5,7 +5,7 @@
     <property environment="env"/>
     <property name="vendor" value="NuvolaBase Ltd"/>
     <property name="product" value="OrientDB"/>
-    <property name="version" value="1.6.4"/>
+    <property name="version" value="1.7-SNAPSHOT"/>
     <condition property="community.release" value="${releaseHome}/orientdb-community-${version}"
                else="../releases/orientdb-community-${version}">
         <isset property="releaseHome"/>
@@ -34,41 +34,41 @@
                 <fileset dir="tests" includes="build.xml"/>
             </subant>
 
-            <echo>___ ___ ____ _</echo>
-            <echo>.' `.|_ ||_ _| | |</echo>
-            <echo>/ .-. \ | |_/ / | |</echo>
-            <echo>| | | | | __'. |_|</echo>
-            <echo>\ `-' /_| | \ \_ _</echo>
-            <echo>`.___.'|____||____| (_)</echo>
-        </sequential>
+           <echo>   ___   ___  ____    _  </echo>  
+           <echo> .'   `.|_  ||_  _|  | | </echo>
+           <echo>/  .-.  \ | |_/ /    | | </echo>
+           <echo>| |   | | |  __'.    |_| </echo>
+           <echo>\  `-'  /_| |  \ \_   _  </echo>
+           <echo> `.___.'|____||____| (_) </echo>
+    </sequential>
 
     </macrodef>
 
     <target name="init">
-        <echo>.</echo>
-        <echo>.` `</echo>
-        <echo>, `:.</echo>
-        <echo>`,` ,:`</echo>
-        <echo>.,. :,,</echo>
-        <echo>.,, ,,,</echo>
-        <echo>. .,.::::: ```` ::::::::: :::::::::</echo>
-        <echo>,` .::,,,,::.,,,,,,`;; .: :::::::::: ::: :::</echo>
-        <echo>`,. ::,,,,,,,:.,,.` ` .: ::: ::: ::: :::</echo>
-        <echo>,,:,:,,,,,,,,::. ` ` `` .: ::: ::: ::: :::</echo>
-        <echo>,,:.,,,,,,,,,: `::, ,, ::,::` : :,::` :::: ::: ::: ::: :::</echo>
-        <echo>,:,,,,,,,,,,::,: ,, :. : :: : .: ::: ::: :::::::</echo>
-        <echo>:,,,,,,,,,,:,:: ,, : : : : .: ::: ::: :::::::::</echo>
-        <echo>` :,,,,,,,,,,:,::, ,, .:::::::: : : .: ::: ::: ::: :::</echo>
-        <echo>`,...,,:,,,,,,,,,: .:,. ,, ,, : : .: ::: ::: ::: :::</echo>
-        <echo>.,,,,::,,,,,,,: `: , ,, : ` : : .: ::: ::: ::: :::</echo>
-        <echo>...,::,,,,::.. `: .,, :, : : : .: ::::::::::: ::: :::</echo>
-        <echo>,::::,,,. `: ,, ::::: : : .: ::::::::: ::::::::::</echo>
-        <echo>,,:` `,,.</echo>
-        <echo>,,, .,`</echo>
-        <echo>,,. `, GRAPH DATABASE</echo>
-        <echo>`` `. COMMUNITY EDITION</echo>
-        <echo>`` www.orientdb.org</echo>
-        <echo>`</echo>
+     <echo>           .                                          </echo>
+     <echo>          .`        `                                 </echo>
+     <echo>          ,      `:.                                  </echo>
+     <echo>         `,`    ,:`                                   </echo>
+     <echo>         .,.   :,,                                    </echo>
+     <echo>         .,,  ,,,                                     </echo>
+     <echo>    .    .,.:::::  ````                                 :::::::::     :::::::::</echo>
+     <echo>    ,`   .::,,,,::.,,,,,,`;;                      .:    ::::::::::    :::    :::</echo>
+     <echo>    `,.  ::,,,,,,,:.,,.`  `                       .:    :::      :::  :::     :::</echo>
+     <echo>     ,,:,:,,,,,,,,::.   `        `         ``     .:    :::      :::  :::     :::</echo>
+     <echo>      ,,:.,,,,,,,,,: `::, ,,   ::,::`   : :,::`  ::::   :::      :::  :::    :::</echo>
+     <echo>       ,:,,,,,,,,,,::,:   ,,  :.    :   ::    :   .:    :::      :::  :::::::</echo>
+     <echo>        :,,,,,,,,,,:,::   ,,  :      :  :     :   .:    :::      :::  :::::::::</echo>
+     <echo>  `     :,,,,,,,,,,:,::,  ,, .::::::::  :     :   .:    :::      :::  :::     :::</echo>
+     <echo>  `,...,,:,,,,,,,,,: .:,. ,, ,,         :     :   .:    :::      :::  :::     :::</echo>
+     <echo>    .,,,,::,,,,,,,:  `: , ,,  :     `   :     :   .:    :::      :::  :::     :::</echo>
+     <echo>      ...,::,,,,::.. `:  .,,  :,    :   :     :   .:    :::::::::::   :::     :::</echo>
+     <echo>           ,::::,,,. `:   ,,   :::::    :     :   .:    :::::::::     ::::::::::</echo>
+     <echo>           ,,:` `,,.                                  </echo>
+     <echo>          ,,,    .,`                                  </echo>
+     <echo>         ,,.     `,                                          GRAPH DATABASE</echo>
+     <echo>       ``        `.                                        COMMUNITY  EDITION</echo>
+     <echo>                 ``                                         www.orientdb.org</echo>
+     <echo>                 `                                    </echo>
 
         <mkdir dir="${community.release}"/>
         <mkdir dir="${community.release}/log"/>
@@ -165,7 +165,7 @@
             <fileset dir="." includes="tools/config/*"/>
             <fileset dir="." includes="server/config/*"/>
             <fileset dir="." includes="distributed/config/*"/>
-            <fileset dir="graphdb/config" includes="*.xml"/>
+            <fileset dir="graphdb/config" includes="*.xml" erroronmissingdir="false"/>
         </copy>
 
         <copy todir="${community.release}/lib" flatten="true">

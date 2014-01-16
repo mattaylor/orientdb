@@ -895,14 +895,15 @@ public class OClassImpl extends ODocumentWrapperNoClass implements OClass {
     if (iClassName == null)
       return false;
 
-    if (iClassName.equals(name) || iClassName.equals(shortName))
-      // SPEEDUP CHECK IF CLASS NAME ARE THE SAME
-      return true;
+    OClass cls = this;
+    do {
+      if (iClassName.equalsIgnoreCase(cls.getName()) || iClassName.equalsIgnoreCase(cls.getShortName()))
+        return true;
 
-    if (superClass == null)
-      return false;
+      cls = cls.getSuperClass();
+    } while (cls != null);
 
-    return isSubClassOf(owner.getClass(iClassName));
+    return false;
   }
 
   /**
